@@ -1,5 +1,5 @@
 #define InA1            4                      // INA motor pin
-#define InB1            5  
+#define InB1            5                        //INA
 #define InA2            6
 #define InB2            7
 #define InA3            2
