@@ -3,7 +3,7 @@
 #include <geometry_msgs/Twist.h>
 
 #define InA1            4                      // INA motor pin
-#define InB1            5                        
+#define InB1            5  
 #define InA2            6
 #define InB2            7
 #define InA3            2
@@ -91,7 +91,7 @@ void setup() {
 void loop() {
  nh.spinOnce();
  //getParam();                                                                 // check keyboard
- if((millis()-lastMilli) >= LOOPTIME)   {                                    // enter tmed loop
+ if((millis()-lastMilli) >= LOOPTIME)   {                                    // enter tmed loop 此function會和publisher爭奪serial port 故註解
    lastMilli = millis();
    getMotorData();                                                           // calculate speed, volts and Amps
    PWM_val1= updatePid1(PWM_val1, speed_req1, speed_act1);
