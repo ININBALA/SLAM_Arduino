@@ -1,3 +1,7 @@
+#include <ros.h>
+#include <geometry_msgs/Vector3Stamped.h>
+#include <geometry_msgs/Twist.h>
+
 #define InA1            4                      // INA motor pin
 #define InB1            5  
 #define InA2            6
@@ -19,18 +23,19 @@
 #define LOW_BAT         10000                   // low bat warning
 #define LOOPTIME        100                     // PID loop time
 #define NUMREADINGS     10                      // samples for Amp average
+ros::NodeHandle nh;
 
 int readings[NUMREADINGS];
 unsigned long lastMilli = 0;                    // loop timing
 unsigned long lastMilliPrint = 0;               // loop timing
-int speed_req1 = 0;                            // speed (Set Point)
+int speed_req1 = 20;                            // speed (Set Point)
 int speed_act1 = 0;                              // speed (actual value)
 int PWM_val1 = 0;                    // (25% = 64; 50% = 127; 75% = 191; 100% = 255)
 
-int speed_req2 = 0;                            // speed (Set Point)
+int speed_req2 = 20;                            // speed (Set Point)
 int speed_act2 = 0;                              // speed (actual value)
 int PWM_val2 = 0;   
-int speed_req3 = 0;                            // speed (Set Point)
+int speed_req3 = 20;                            // speed (Set Point)
 int speed_act3 = 0;                              // speed (actual value)
 int PWM_val3 = 0;   
 //int voltage = 0;                                // in mV
@@ -41,7 +46,8 @@ volatile long count3 = 0;// rev counter
 float Kp =   .4;                                // PID proportional control Gain
 float Kd =    1;                                // PID Derivitave control gain
 
-
+geometry_msgs::Vector3Stamped rpm_msg;
+ros::Publisher rpm_pub("rpm", &rpm_msg);
 void setup() {
  analogReference(EXTERNAL);                            // Current external ref is 3.3V
  Serial.begin(115200);
@@ -76,22 +82,28 @@ void setup() {
  analogWrite(InB2, PWM_val2);
  analogWrite(InA3, LOW);
  analogWrite(InB3, PWM_val3);
+
+ nh.initNode();
+ nh.advertise(rpm_pub);
+ //nh.getHardware()->setBaud(57600);
 }
 
 void loop() {
- getParam();                                                                 // check keyboard
+ nh.spinOnce();
+ //getParam();                                                                 // check keyboard
  if((millis()-lastMilli) >= LOOPTIME)   {                                    // enter tmed loop
    lastMilli = millis();
    getMotorData();                                                           // calculate speed, volts and Amps
    PWM_val1= updatePid1(PWM_val1, speed_req1, speed_act1);
    PWM_val2= updatePid2(PWM_val2, speed_req2, speed_act2);  
    PWM_val3= updatePid3(PWM_val3, speed_req3, speed_act3);  // compute PWM value
- //  analogWrite(PWM1, PWM_val);
    analogWrite(InB1, PWM_val1);
    analogWrite(InB2, PWM_val2);  
    analogWrite(InB3, PWM_val3);  // send PWM to motor
+   publishRPM();
+   //nh.spinOnce();
  }
- printMotorInfo();                                                           // display data
+ //printMotorInfo();                                                           // display data
 }
 
 void getMotorData()  {                                                        // calculate speed, volts and Amps
@@ -317,7 +329,14 @@ char param1, cmd1;
    }
 }
 
-
+void publishRPM(){
+  rpm_msg.header.stamp = nh.now();
+  rpm_msg.vector.x = speed_act1;
+  rpm_msg.vector.y = speed_act2;
+  rpm_msg.vector.z = speed_act3;
+  rpm_pub.publish(&rpm_msg);
+  nh.spinOnce();
+}
 /*int digital_smooth(int value, int *data_array)  {    // remove signal noise
 static int ndx=0;                                                        
 static int count=0;                          
