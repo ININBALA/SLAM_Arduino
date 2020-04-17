@@ -115,7 +115,10 @@ static long countAnt3 = 0;// last count
  speed_act2 = ((count2 - countAnt2)*(60*(1000/LOOPTIME)))/(16*29);          // 16 pulses X 29 gear ratio = 464 counts per output shaft rev
  countAnt2 = count2; 
  speed_act3 = ((count3 - countAnt3)*(60*(1000/LOOPTIME)))/(16*29);          // 16 pulses X 29 gear ratio = 464 counts per output shaft rev
- countAnt3 = count3;                  
+ countAnt3 = count3;     
+ speed_vx = (-2)*speed_act2/3 + speed_act3/3 + speed_act1/3;
+ speed_vy = (- sqrt(3)/3)*speed_act3 + (sqrt(3)/3)*speed_act1;
+ speed_w = 403*speed_act2/500 + 403*speed_act3/500 + 403*speed_act1/500; 
 // voltage = int(analogRead(Vpin) * 3.22 * 12.2/2.2);                          // battery voltage: mV=ADC*3300/1024, voltage divider 10K+2K
 // current = int(analogRead(Apin) * 3.22 * .77 *(1000.0/132.0));               // motor current - output: 130mV per Amp
 // current = digital_smooth(current, readings);                                // remove signal noise
@@ -163,6 +166,10 @@ void printMotorInfo()  {                                                      //
     Serial.print("  SP3:");             Serial.print(speed_req3);  
    Serial.print("  RPM3:");          Serial.print(speed_act3);
    Serial.print("  PWM3:");          Serial.print(PWM_val3);  
+   Serial.println();
+   Serial.print("Vx:");             Serial.print(speed_vx);  
+   Serial.print("  Vy:");          Serial.print(speed_vy);
+   Serial.print("  w:");          Serial.print(speed_w);
    Serial.println();
 //   Serial.print("  V:");            Serial.print(float(voltage)/1000,1);
 //   Serial.print("  mA:");           Serial.println(current);
@@ -331,9 +338,9 @@ char param1, cmd1;
 
 void publishRPM(){
   rpm_msg.header.stamp = nh.now();
-  rpm_msg.vector.x = speed_act1;
-  rpm_msg.vector.y = speed_act2;
-  rpm_msg.vector.z = speed_act3;
+  rpm_msg.vector.x = speed_vx;
+  rpm_msg.vector.y = speed_vy;
+  rpm_msg.vector.z = speed_w;
   rpm_pub.publish(&rpm_msg);
   nh.spinOnce();
 }
