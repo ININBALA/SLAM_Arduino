@@ -28,16 +28,18 @@ ros::NodeHandle nh;
 int readings[NUMREADINGS];
 unsigned long lastMilli = 0;                    // loop timing
 unsigned long lastMilliPrint = 0;               // loop timing
-double speed_req1 = 0;                            // speed (Set Point)
-double speed_act1 = 0;                              // speed (actual value)
+int speed_req1 = 0;                            // speed (Set Point)
+int speed_act1 = 0;                              // speed (actual value)
 int PWM_val1 = 0;                    // (25% = 64; 50% = 127; 75% = 191; 100% = 255)
-
-double speed_req2 = 0;                            // speed (Set Point)
-double speed_act2 = 0;                              // speed (actual value)
-int PWM_val2 = 0;   
-double speed_req3 = 0;                            // speed (Set Point)
-double speed_act3 = 0;                              // speed (actual value)
-int PWM_val3 = 0;  
+int PWM_val1a = 0;
+int speed_req2 = 0;                            // speed (Set Point)
+int speed_act2 = 0;                              // speed (actual value)
+int PWM_val2 = 0; 
+int PWM_val2a = 0;  
+int speed_req3 = 0;                            // speed (Set Point)
+int speed_act3 = 0;                              // speed (actual value)
+int PWM_val3 = 0;
+int PWM_val3a = 0;  
 float speed_vx = 0;
 float speed_vy = 0;
 float  speed_w = 0;
@@ -93,11 +95,11 @@ void setup() {
   for(int i=0; i<NUMREADINGS; i++)   readings[i] = 0;  // initialize readings to 0
   
   // analogWrite(PWM1, PWM_l);
-  analogWrite(InA1, LOW);
+  analogWrite(InA1, PWM_val1a);
   analogWrite(InB1, PWM_val1);
-  analogWrite(InA2, LOW);
+  analogWrite(InA2, PWM_val2a);
   analogWrite(InB2, PWM_val2);
-  analogWrite(InA3, LOW);
+  analogWrite(InA3, PWM_val3a);
   analogWrite(InB3, PWM_val3);
   
   nh.initNode();
@@ -111,15 +113,51 @@ void loop() {
   //getParam();                                                                 // check keyboard
   if((millis()-lastMilli) >= LOOPTIME)   {                                    // enter tmed loop 此function會和publisher爭奪serial port 故註解
     lastMilli = millis();
-    getMotorData();                                                           // calculate speed, volts and Amps
-    PWM_val1= updatePid1(PWM_val1, speed_req1, speed_act1);
-    PWM_val2= updatePid2(PWM_val2, speed_req2, speed_act2);  
-    PWM_val3= updatePid3(PWM_val3, speed_req3, speed_act3);  // compute PWM value
-    analogWrite(InB1, PWM_val1);
-    analogWrite(InB2, PWM_val2);  
-    analogWrite(InB3, PWM_val3);  // send PWM to motor
+    getMotorData();    // calculate speed, volts and Amps
+    if(speed_req1>=0){
+      PWM_val1= updatePid1(PWM_val1, speed_req1, speed_act1);
+      PWM_val1a= 0;
+      analogWrite(InA1, PWM_val1a);
+      analogWrite(InB1, PWM_val1);
+    }
+    else if(speed_req1<0){
+      PWM_val1= updatePid1(PWM_val1, speed_req1, speed_act1);
+      PWM_val1a= 0;
+      //Serial.print(PWM_val1a);    
+      analogWrite(InA1, PWM_val1);
+      analogWrite(InB1, PWM_val1a);
+    }
+
+    
+    if(speed_req2>=0){
+      PWM_val2= updatePid2(PWM_val2, speed_req2, speed_act2);
+      PWM_val2a= 0;
+      analogWrite(InA2, PWM_val2a);
+      analogWrite(InB2, PWM_val2);
+    }
+    else if(speed_req2<0){
+      PWM_val2= updatePid2(PWM_val2, speed_req2, speed_act2);
+      PWM_val2a= 0;
+      analogWrite(InA2, PWM_val2);
+      analogWrite(InB2, PWM_val2a);
+    }
+
+    
+    if(speed_req3>=0){
+      PWM_val3= updatePid3(PWM_val3, speed_req3, speed_act3);
+      PWM_val3a= 0;
+      analogWrite(InA3, PWM_val3a);
+      analogWrite(InB3, PWM_val3);
+    }
+    else if(speed_req3<0){
+      PWM_val3= updatePid3(PWM_val3, speed_req3, speed_act3);
+      PWM_val3a= 0;
+      analogWrite(InA3, PWM_val3);
+      analogWrite(InB3, PWM_val3a);
+    }
+ // compute PWM value
+ // send PWM to motor
     publishRPM();
-   //nh.spinOnce();
  }
  //printMotorInfo();                                                           // display data
 }
@@ -279,7 +317,7 @@ int getParam()  {
       }
       if(cmd1=='-')    {
         speed_req1 -= 20;
-        if(speed_req1<0)   speed_req1 =0;
+        //if(speed_req1<0)   speed_req1 =0;
       }
       break;
     case 's':                                        // adjust direction
@@ -305,7 +343,7 @@ int getParam()  {
       }
       if(cmd1=='-')    {
         speed_req2 -= 20;
-        if(speed_req2<0)   speed_req2 =0;
+       // if(speed_req2<0)   speed_req2 =0;
       }
      break;
    case 'd':                                        // adjust direction
@@ -331,7 +369,7 @@ int getParam()  {
       }
       if(cmd1=='-')    {
         speed_req3 -= 20;
-        if(speed_req3<0)   speed_req3 =0;
+        //if(speed_req3<0)   speed_req3 =0;
       }
       break;
     case 'f':                                        // adjust direction
@@ -356,7 +394,7 @@ int getParam()  {
 
 void publishRPM(){
   rpm_msg.header.stamp = nh.now();
-  rpm_msg.vector.x = speed_vx;
+  rpm_msg.vector.x = speed_vx;  
   rpm_msg.vector.y = speed_vy;
   rpm_msg.vector.z = speed_w;
   rpm_pub.publish(&rpm_msg);
