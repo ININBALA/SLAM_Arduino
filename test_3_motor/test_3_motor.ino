@@ -92,8 +92,7 @@ void setup() {
   attachInterrupt(2, rencoder1, FALLING);
   attachInterrupt(3, rencoder2, FALLING);
   attachInterrupt(4, rencoder3, FALLING);
-  for(int i=0; i<NUMREADINGS; i++)   readings[i] = 0;  // initialize readings to 0
-  
+  for(int i=0; i<NUMREADINGS; i++)   readings[i] = 0;  // initialize readings to 0 
   // analogWrite(PWM1, PWM_l);
   analogWrite(InA1, PWM_val1a);
   analogWrite(InB1, PWM_val1);
@@ -127,7 +126,6 @@ void loop() {
       analogWrite(InA1, PWM_val1);
       analogWrite(InB1, PWM_val1a);
     }
-
     
     if(speed_req2>=0){
       PWM_val2= updatePid2(PWM_val2, speed_req2, speed_act2);
@@ -141,7 +139,6 @@ void loop() {
       analogWrite(InA2, PWM_val2);
       analogWrite(InB2, PWM_val2a);
     }
-
     
     if(speed_req3>=0){
       PWM_val3= updatePid3(PWM_val3, speed_req3, speed_act3);
@@ -229,7 +226,6 @@ void printMotorInfo()  {                                                      //
     Serial.println();
 //   Serial.print("  V:");            Serial.print(float(voltage)/1000,1);
 //   Serial.print("  mA:");           Serial.println(current);
-
 //   if (current > CURRENT_LIMIT)               Serial.println("*** CURRENT_LIMIT ***");                
 //   if (voltage > 1000 && voltage < LOW_BAT)   Serial.println("*** LOW_BAT ***");                
  }
@@ -253,7 +249,6 @@ void rencoder1() {
     }
   }
 }
-
 
 void rencoder2() {
   if (digitalRead(encodPinB2) == HIGH) {
@@ -292,8 +287,6 @@ void rencoder3() {
     }
   }
 }
-
-
 
 /*void rencoder()  {                                    // pulse and direction, direct port reading to save cycles
  if (PINB & 0b00000001)    count++;                // if(digitalRead(encodPinB1)==HIGH)   count ++;
