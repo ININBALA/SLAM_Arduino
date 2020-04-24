@@ -24,7 +24,7 @@
 #define LOOPTIME        100                     // PID loop time
 #define NUMREADINGS     10                      // samples for Amp average
 ros::NodeHandle nh;
-
+  
 int readings[NUMREADINGS];
 unsigned long lastMilli = 0;                    // loop timing
 unsigned long lastMilliPrint = 0;               // loop timing
@@ -55,9 +55,9 @@ void handle_cmd( const geometry_msgs::Twist& cmd_msg) {
   double x = cmd_msg.linear.x;
   double y = cmd_msg.linear.y;
   double z = cmd_msg.angular.z;
-  speed_req1 = -1*y+x*0.1188;
-  speed_req2 = y/2-z*sqrt(3)/2+x*0.1188;
-  speed_req3 = y/2+z*sqrt(3)/2+x*0.1188;
+  speed_req2 = -1*x+z*0.1188;
+  speed_req3 = x/2-y*sqrt(3)/2+z*0.1188;
+  speed_req1 = x/2+y*sqrt(3)/2+z*0.1188;
   /*speed_req1 = x;
   speed_req2 = y;
   speed_req3 = z;*/
