@@ -21,13 +21,13 @@
 //#define Vpin            0                       // battery monitoring analog pin
 //#define Apin            1                       // motor current monitoring analog pin
 
-#define CURRENT_LIMIT   1000                     // high current warning
-#define LOW_BAT         10000                   // low bat warning
-#define LOOPTIME        100                     // PID loop time
-#define NUMREADINGS     10                      // samples for Amp average
+//#define CURRENT_LIMIT   1000                     // high current warning
+//#define LOW_BAT         10000                   // low bat warning
+//#define LOOPTIME        100                     // PID loop time
+//#define NUMREADINGS     10                      // samples for Amp average
 ros::NodeHandle nh;
   
-int readings[NUMREADINGS];
+//int readings[NUMREADINGS];
 unsigned long lastMilli = 0;                    // loop timing
 unsigned long lastMilliPrint = 0;               // loop timing
 int speed_req1 = 0;                            // speed (Set Point)
@@ -208,7 +208,7 @@ int updatePid3(int command, int targetValue, int currentValue)   {             /
   last_error = error;
   return constrain(command + int(pidTerm), 0, 255);
 }
-
+/*
 void printMotorInfo()  {                                                      // display data
   if((millis()-lastMilliPrint) >= 500)   {                    
     lastMilliPrint = millis();
@@ -232,7 +232,7 @@ void printMotorInfo()  {                                                      //
 //   if (voltage > 1000 && voltage < LOW_BAT)   Serial.println("*** LOW_BAT ***");                
  }
 }
-
+*/
 void rencoder1() {
   if (digitalRead(encodPinB1) == HIGH) {
     if (digitalRead(encodPinA1) == LOW) {
@@ -294,7 +294,7 @@ void rencoder3() {
  if (PINB & 0b00000001)    count++;                // if(digitalRead(encodPinB1)==HIGH)   count ++;
  else                      count--;                // if (digitalRead(encodPinB1)==LOW)   count --;
 }*/
-
+/*
 int getParam()  {
   char param1, cmd1;
   if(!Serial.available())    return 0;
@@ -386,7 +386,7 @@ int getParam()  {
       Serial.println("???");
   }
 }
-
+*/
 void publishRPM(){
   rpm_msg.header.stamp = nh.now();
   rpm_msg.vector.x = speed_vx;  
