@@ -111,8 +111,8 @@ void setup() {
 
 void loop() {
   nh.spinOnce();
-  //getParam();                                                                 // check keyboard
-  if((millis()-lastMilli) >= LOOPTIME)   {                                    // enter tmed loop 此function會和publisher爭奪serial port 故註解
+  //getParam();                                                                 // check keyboard 此function會和publisher爭奪serial port 故註解
+  if((millis()-lastMilli) >= LOOPTIME)   {                                    // enter tmed loop 
     lastMilli = millis();
     getMotorData();    // calculate speed, volts and Amps
     if(speed_req1>=0){
